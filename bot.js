@@ -33,8 +33,9 @@ const Bot = new class {
         if(lastArray.length > 0) return { "depth": lastArray[0][1], "pos": lastArray[0][0] };
         for (const index in weightArray) {
             const depthArray = weightArray[index],
-                nextArray = weightArray[index + 1];
+                nextArray = weightArray[Math.floor(index) + 1];
             if ((depthArray?.arr.length ?? 0) <= 0) continue;
+            console.log(depthArray?.arr[0][1], nextArray?.arr[0][1]);
             if ((nextArray?.arr.length ?? 0) > 0 && nextArray.depth >= this.#minDefence && nextArray.arr[0][1] > depthArray.arr[0][1])
                 return { "depth": nextArray.depth, "pos": nextArray.arr[0] };
             return { "depth": depthArray.depth, "pos": depthArray.arr[0] };
