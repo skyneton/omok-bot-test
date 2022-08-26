@@ -24,7 +24,7 @@ const Bot = new class {
         }
     }
 
-    #getWeightPos(weightArray) {
+    #getWeightPos(weightArray, isDefence = true) {
         const lastArray = [];
         weightArray.sort((a, b) => b.depth - a.depth).map(item => {
             item.arr.sort((a, b) => b[1] - a[1]);
@@ -36,7 +36,7 @@ const Bot = new class {
                 nextArray = weightArray[Math.floor(index) + 1];
             if ((depthArray?.arr.length ?? 0) <= 0) continue;
             console.log(depthArray?.arr[0][1], nextArray?.arr[0][1]);
-            if ((nextArray?.arr.length ?? 0) > 0 && nextArray.depth >= this.#minDefence && nextArray.arr[0][1] > depthArray.arr[0][1])
+            if ((nextArray?.arr.length ?? 0) > 0 && (!isDefence || nextArray.depth >= this.#minDefence) && nextArray.arr[0][1] > depthArray.arr[0][1])
                 return { "depth": nextArray.depth, "pos": nextArray.arr[0] };
             return { "depth": depthArray.depth, "pos": depthArray.arr[0] };
         }
@@ -47,11 +47,11 @@ const Bot = new class {
         const defencePosData = this.#getWeightPos(defenceWeightArray);
 
         const attackWeightArray = this.#loopCalc(this.#bot, boardData, this.#botValue);
-        const attackPosData = this.#getWeightPos(attackWeightArray);
+        const attackPosData = this.#getWeightPos(attackWeightArray, false);
 
         if (attackPosData?.pos[1] == 4) return attackPosData;
         console.log(defencePosData, defenceWeightArray);
-        return defencePosData.depth >= 3
+        return defencePosData.depth >= this.#minDefence
             ? defencePosData
             : attackPosData
                 ? attackPosData

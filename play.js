@@ -28,11 +28,43 @@ const Play = new class {
             if (this.#boardData.get(x, y) != 0) return;
             this.#boardData.set(x, y, 1);
             this.#board.drawPlace(x, y, "black");
+            if (this.#gameEndCheck(x, y)) {
+                alert("You win!");
+            }
             Bot.addEnemyPos(x, y);
             const botResult = Bot.think(this.#boardData);
             this.#boardData.set(botResult.pos[0][0], botResult.pos[0][1], 2);
             this.#board.drawPlace(botResult.pos[0][0], botResult.pos[0][1], "white");
             Bot.addBotPos(botResult.pos[0][0], botResult.pos[0][1]);
+            if (this.#gameEndCheck(botResult.pos[0][0], botResult.pos[0][1])) {
+                alert("You lose!");
+            }
         }
+    }
+
+    #gameEndCheck(x, y) {
+        const type = this.#boardData.get(x, y);
+        const horizontal = this.#countVector(x + 1, y, "1,0", type) + this.#countVector(x - 1, y, "-1,0", type) + 1;
+        if(horizontal >= 5) return true;
+        const vertical = this.#countVector(x, y + 1, "0,1", type) + this.#countVector(x, y - 1, "0,-1", type) + 1;
+        if(vertical >= 5) return true;
+        const diagonal = this.#countVector(x + 1, y + 1, "1,1", type) + this.#countVector(x - 1, y - 1, "-1,-1", type) + 1;
+        if(diagonal >= 5) return true;
+        const diagonal2 = this.#countVector(x + 1, y - 1, "1,-1", type) + this.#countVector(x - 1, y + 1, "-1,1", type) + 1;
+        if (diagonal2 >= 5) return true;
+        return false;
+    }
+
+    /**
+     * 
+     * @param {Int} x 
+     * @param {Int} y 
+     * @param {string} vector 
+     * @param {Int} type 
+     */
+    #countVector(x, y, vector, type, count = 0) {
+        if(count > 5 || this.#boardData.get(x, y) != type) return count;
+        const direction = vector.split(",").map(item => Math.floor(item));
+        return this.#countVector(x + direction[0], y + direction[1], vector, type, count + 1);
     }
 }
