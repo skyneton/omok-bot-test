@@ -25,19 +25,17 @@ const Bot = new class {
     }
 
     #getWeightPos(weightArray, isDefence = true) {
-        const lastArray = [];
-        weightArray.sort((a, b) => b.depth - a.depth).map(item => {
-            item.arr.sort((a, b) => b[1] - a[1]);
-            item.arr.length > 0 && item.arr[0][1] >= 4 && lastArray.push([item.arr[0], item.depth]);
-        });
-        if(lastArray.length > 0) return { "depth": lastArray[0][1], "pos": lastArray[0][0] };
+        weightArray.sort((a, b) => b.depth - a.depth).map(item => item.arr.sort((a, b) => b[1] - a[1]));
         for (const index in weightArray) {
-            const depthArray = weightArray[index],
-                nextArray = weightArray[Math.floor(index) + 1];
+            const depthArray = weightArray[index];
             if ((depthArray?.arr.length ?? 0) <= 0) continue;
-            console.log(depthArray?.arr[0][1], nextArray?.arr[0][1]);
-            if ((nextArray?.arr.length ?? 0) > 0 && (!isDefence || nextArray.depth >= this.#minDefence) && nextArray.arr[0][1] > depthArray.arr[0][1])
-                return { "depth": nextArray.depth, "pos": nextArray.arr[0] };
+            for (let i = Math.floor(index) + 1; i < weightArray.length; i++) {
+                const nextArray = weightArray[i];
+                if ((nextArray?.arr.length ?? 0) == 0) continue;
+                if (isDefence && nextArray.depth <= this.#minDefence) break;
+                if (depthArray.arr[0][1] < nextArray.arr[0][1])
+                    return { "depth": nextArray.depth, "pos": nextArray.arr[0] };
+            }
             return { "depth": depthArray.depth, "pos": depthArray.arr[0] };
         }
     }
@@ -62,8 +60,6 @@ const Bot = new class {
         const weightArray = [];
         const visited = new BoardData(boardData.width, boardData.height);
         const weight = new WeightData(boardData.width, boardData.height);
-        if (save) window.weight = weight;
-        if (save) window.visited = visited;
 
         for (const pos of placedPos) {
             this.#calc(pos, boardData, weightArray, weight, visited, target);

@@ -1,8 +1,10 @@
 const Play = new class {
     #board;
     #boardData;
+    #count = 0;
     constructor() {
         this.#board = new Board();
+        window.board = this.#board;
         this.#board.rows = 15;
         this.#board.cols = 15;
         this.#board.cellSize = 40;
@@ -27,14 +29,14 @@ const Play = new class {
         return (x, y) => {
             if (this.#boardData.get(x, y) != 0) return;
             this.#boardData.set(x, y, 1);
-            this.#board.drawPlace(x, y, "black");
+            this.#board.drawPlace(x, y, "black", ++this.#count);
             if (this.#gameEndCheck(x, y)) {
                 alert("You win!");
             }
             Bot.addEnemyPos(x, y);
             const botResult = Bot.think(this.#boardData);
             this.#boardData.set(botResult.pos[0][0], botResult.pos[0][1], 2);
-            this.#board.drawPlace(botResult.pos[0][0], botResult.pos[0][1], "white");
+            this.#board.drawPlace(botResult.pos[0][0], botResult.pos[0][1], "white", ++this.#count);
             Bot.addBotPos(botResult.pos[0][0], botResult.pos[0][1]);
             if (this.#gameEndCheck(botResult.pos[0][0], botResult.pos[0][1])) {
                 alert("You lose!");

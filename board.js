@@ -74,12 +74,15 @@ class Board {
         this.#ctx.stroke();
     }
 
-    drawPlace(x, y, color) {
+    drawPlace(x, y, color, text) {
         this.#ctx.fillStyle = color;
         this.#ctx.beginPath();
         this.#ctx.arc((x + .5) * this.#cellSize, (y + .5) * this.#cellSize, this.#cellSize * .35, 0, Math.PI * 2);
         this.#ctx.fill();
         this.#ctx.stroke();
+        if (!text) return;
+        this.#ctx.textAlign = "right";
+        this.#ctx.fillText(text, (x + .9) * this.#cellSize, (y + .9) * this.#cellSize);
     }
 
     #boardClick() {
