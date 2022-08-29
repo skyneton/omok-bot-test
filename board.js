@@ -82,7 +82,13 @@ class Board {
         this.#ctx.stroke();
         if (!text) return;
         this.#ctx.textAlign = "right";
+        this.#ctx.fillStyle = "white";
+        this.#ctx.strokeStyle = "black";
+        const beforeLineWidth = this.#ctx.lineWidth;
+        this.#ctx.lineWidth = 3;
+        this.#ctx.strokeText(text, (x + .9) * this.#cellSize, (y + .9) * this.#cellSize);
         this.#ctx.fillText(text, (x + .9) * this.#cellSize, (y + .9) * this.#cellSize);
+        this.#ctx.lineWidth = beforeLineWidth;
     }
 
     #boardClick() {

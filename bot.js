@@ -61,6 +61,10 @@ const Bot = new class {
         const visited = new BoardData(boardData.width, boardData.height);
         const weight = new WeightData(boardData.width, boardData.height);
 
+        if (save) {
+            window.visited = visited;
+            window.weight = weight;
+        }
         for (const pos of placedPos) {
             this.#calc(pos, boardData, weightArray, weight, visited, target);
         }
@@ -120,26 +124,11 @@ const Bot = new class {
         if (boardData.get(ax, ay) != 0 && boardData.get(bx, by) != 0) return;
         if (boardData.get(ax, ay) == 0 && boardData.get(bx, by) == 0) depth++;
         if (boardData.get(ax, ay) == 0) {
-            const beforeWeightData = weight.get(ax, ay) ?? {};
-            beforeWeightData[type] ??= { "depth": 0, "real": 0 };
-            const nowDepth = beforeWeightData[type].depth += depth;
-            const nowReal = beforeWeightData[type].real += real;
-            if (!beforeWeightData["last"]) {
-                beforeWeightData["last"] = { type, "plus": 0 };
-                this.#add(weightArray, nowDepth, v1[0], nowReal);
-            } else {
-                const last = beforeWeightData["last"];
-                const beforeDepth = beforeWeightData[last.type].depth + last.plus;
-                if (beforeWeightData[last.type].depth < nowDepth) {
-                    last.type = type;
-                }
-                last.plus = (Object.keys(last).length - 1) * .03;
-                this.#remove(weightArray, beforeDepth, v1[0]);
-                this.#add(weightArray, beforeWeightData[last.type].depth + last.plus, v1[0], nowReal);
-            }
-            weight.set(ax, ay, beforeWeightData);
+            this.#weightCalc(weightArray, weight, v1[0], depth, real, type);
         }
         if (boardData.get(bx, by) == 0) {
+            this.#weightCalc(weightArray, weight, v2[0], depth, real, type);
+            /*
             const beforeWeightData = weight.get(bx, by) ?? {};
             beforeWeightData[type] ??= { "depth": 0, "real": 0 };
             const nowDepth = beforeWeightData[type].depth += depth;
@@ -158,7 +147,39 @@ const Bot = new class {
                 this.#add(weightArray, beforeWeightData[last.type].depth + last.plus, v2[0], nowReal);
             }
             weight.set(bx, by, beforeWeightData);
+            */
         }
+    }
+
+    #weightCalc(weightArray, weight, pos, depth, real, type) {
+        const beforeWeightData = weight.get(pos[0], pos[1]) ?? {};
+        beforeWeightData[type] ??= { "depth": 0, "real": 0 };
+        const nowDepth = beforeWeightData[type].depth += depth;
+        const nowReal = beforeWeightData[type].real += real;
+        let depthData = nowDepth, realData = nowReal;
+        if (!beforeWeightData["last"]) {
+            beforeWeightData["last"] = { type, "plus": 0 };
+        } else {
+            const last = beforeWeightData["last"];
+            const beforeDepth = beforeWeightData[last.type].depth + last.plus;
+            if (beforeWeightData[last.type].depth < nowDepth) {
+                last.type = type;
+            }
+            last.plus = (Object.keys(last).length - 1) * .03;
+            this.#remove(weightArray, beforeDepth, pos);
+            depthData = beforeWeightData[last.type].depth + last.plus;
+        }
+        if (depth - real == 1 && real >= 2) {
+            beforeWeightData["open"] ??= { "depth": 0, "real": 0 };
+            beforeWeightData["open"].depth += depth;
+            beforeWeightData["open"].real = Math.max(real, beforeWeightData["open"].real);
+        }
+        if (depthData < beforeWeightData["open"]?.depth && realData - 1 < beforeWeightData["open"].real) {
+            depthData = beforeWeightData["open"].depth;
+            realData = beforeWeightData["open"].real;
+        }
+        weight.set(pos[0], pos[1], beforeWeightData);
+        this.#add(weightArray, depthData, pos, realData);
     }
 
     #add(weightArray, depth, pos, real) {
