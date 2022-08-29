@@ -169,7 +169,7 @@ const Bot = new class {
             this.#remove(weightArray, beforeDepth, pos);
             depthData = beforeWeightData[last.type].depth + last.plus;
         }
-        if (depth - real == 1 && real >= 2) {
+        if (depth >= 3) {
             beforeWeightData["open"] ??= { "depth": 0, "real": 0 };
             beforeWeightData["open"].depth += depth;
             beforeWeightData["open"].real = Math.max(real, beforeWeightData["open"].real);
