@@ -36,7 +36,13 @@ const Bot = new class {
                 if (depthArray.arr[0][1] < nextArray.arr[0][1])
                     return { "depth": nextArray.depth, "pos": nextArray.arr[0] };
             }
-            return { "depth": depthArray.depth, "pos": depthArray.arr[0] };
+            const randomArr = [ depthArray.arr[0] ];
+            for (let i = 1; i < depthArray.arr.length; i++) {
+                if(depthArray.arr[i][1] == randomArr[0][1]) {
+                    randomArr.push(depthArray.arr[i]);
+                }
+            }
+            return { "depth": depthArray.depth, "pos": randomArr[Math.floor(Math.random() * randomArr.length)] };
         }
     }
 
@@ -93,10 +99,10 @@ const Bot = new class {
                     currentVector,
                     0);
             }
-            this.#calcLine(boardData, weightArray, weight, data["1,0"], data["-1,0"], 0);
-            this.#calcLine(boardData, weightArray, weight, data["0,1"], data["0,-1"], 1);
-            this.#calcLine(boardData, weightArray, weight, data["1,1"], data["-1,-1"], 2);
-            this.#calcLine(boardData, weightArray, weight, data["1,-1"], data["-1,1"], 3);
+            this.#calcLine(boardData, weightArray, weight, data["1,0"], data["-1,0"], id, 0);
+            this.#calcLine(boardData, weightArray, weight, data["0,1"], data["0,-1"], id, 1);
+            this.#calcLine(boardData, weightArray, weight, data["1,1"], data["-1,-1"], id, 2);
+            this.#calcLine(boardData, weightArray, weight, data["1,-1"], data["-1,1"], id, 3);
             return;
         }
         const visitedData = visited.get(x, y) ? visited.get(x, y) : visited.set(x, y, {});
@@ -104,30 +110,36 @@ const Bot = new class {
             // already checked.
             return;
         }
+        const direction = vector.split(",").map(item => Math.floor(item));
         if (x < 0 || x >= boardData.width || y < 0 || y >= boardData.height
             || boardData.get(x, y) != id) {
-            return [[x, y], depth];
+            return [[x, y], depth, direction];
         }
-        const direction = vector.split(",").map(item => Math.floor(item));
         return visitedData[vector] = this.#calcVector(
             x + direction[0],
             y + direction[1],
             id, boardData, weightArray, weight, visited, vector, depth + 1);
     }
 
-    #calcLine(boardData, weightArray, weight, v1, v2, type) {
+    #calcLine(boardData, weightArray, weight, v1, v2, value, type) {
         if (!Array.isArray(v1) || !Array.isArray(v2)) return;
         let depth = v1[1] + v2[1] + 1;
         const real = depth;
         const ax = v1[0][0], ay = v1[0][1];
         const bx = v2[0][0], by = v2[0][1];
-        if (boardData.get(ax, ay) != 0 && boardData.get(bx, by) != 0) return;
+        let a = !boardData.get(ax, ay) ? [ax + v1[2][0], ay + v1[2][1]] : v1[0];
+        let b = !boardData.get(bx, by) ? [bx + v2[2][0], by + v2[2][1]] : v2[0];
+        if (boardData.get(a[0], a[1]) && boardData.get(a[0], a[1]) != value
+            && boardData.get(b[0], b[1]) && boardData.get(b[0], b[1]) != value
+            && Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1]) < 5)) return;
         if (boardData.get(ax, ay) == 0 && boardData.get(bx, by) == 0) depth++;
         if (boardData.get(ax, ay) == 0) {
-            this.#weightCalc(weightArray, weight, v1[0], depth, real, type);
+            this.#weightCalc(boardData, weightArray, weight, v1[0], depth, real, type);
+            //this.#weightCalc(boardData, weightArray, weight, [v1[0][0] + v1[2][0], v1[0][1] + v1[2][1]], depth - 1, real - 1, type);
         }
         if (boardData.get(bx, by) == 0) {
-            this.#weightCalc(weightArray, weight, v2[0], depth, real, type);
+            this.#weightCalc(boardData, weightArray, weight, v2[0], depth, real, type);
+            //this.#weightCalc(boardData, weightArray, weight, [v2[0][0] + v2[2][0], v2[0][1] + v2[2][1]], depth - 1, real - 1, type);
             /*
             const beforeWeightData = weight.get(bx, by) ?? {};
             beforeWeightData[type] ??= { "depth": 0, "real": 0 };
@@ -151,7 +163,8 @@ const Bot = new class {
         }
     }
 
-    #weightCalc(weightArray, weight, pos, depth, real, type) {
+    #weightCalc(boardData, weightArray, weight, pos, depth, real, type) {
+        if(boardData.get(pos[0], pos[1]) || depth <= 0 || real <= 0) return;
         const beforeWeightData = weight.get(pos[0], pos[1]) ?? {};
         beforeWeightData[type] ??= { "depth": 0, "real": 0 };
         const nowDepth = beforeWeightData[type].depth += depth;
