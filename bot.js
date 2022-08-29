@@ -131,7 +131,7 @@ const Bot = new class {
         let b = !boardData.get(bx, by) ? [bx + v2[2][0], by + v2[2][1]] : v2[0];
         if (boardData.get(a[0], a[1]) && boardData.get(a[0], a[1]) != value
             && boardData.get(b[0], b[1]) && boardData.get(b[0], b[1]) != value
-            && Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1]) < 5)) return;
+            && Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2)) < 5) return;
         if (boardData.get(ax, ay) == 0 && boardData.get(bx, by) == 0) depth++;
         else if (real < 4) depth -= .5;
         if (boardData.get(ax, ay) == 0) {
