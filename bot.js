@@ -133,6 +133,7 @@ const Bot = new class {
             && boardData.get(b[0], b[1]) && boardData.get(b[0], b[1]) != value
             && Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1]) < 5)) return;
         if (boardData.get(ax, ay) == 0 && boardData.get(bx, by) == 0) depth++;
+        else if (real < 4) depth -= .5;
         if (boardData.get(ax, ay) == 0) {
             this.#weightCalc(boardData, weightArray, weight, v1[0], depth, real, type);
             //this.#weightCalc(boardData, weightArray, weight, [v1[0][0] + v1[2][0], v1[0][1] + v1[2][1]], depth - 1, real - 1, type);
