@@ -67,10 +67,6 @@ const Bot = new class {
         const visited = new BoardData(boardData.width, boardData.height);
         const weight = new WeightData(boardData.width, boardData.height);
 
-        if (save) {
-            window.visited = visited;
-            window.weight = weight;
-        }
         for (const pos of placedPos) {
             this.#calc(pos, boardData, weightArray, weight, visited, target);
         }
