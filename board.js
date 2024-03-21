@@ -35,7 +35,7 @@ class Board {
     setCanvas(canvas) {
         this.#canvas = canvas;
         this.#ctx = canvas.getContext('2d');
-        this.bgColor = 'teal';
+        if(!this.#bgColor) this.bgColor = 'teal';
         canvas.width = this.width;
         canvas.height = this.height;
         canvas.addEventListener("click", this.#boardClick());
