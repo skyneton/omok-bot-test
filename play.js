@@ -8,7 +8,7 @@ const Play = new class {
         this.#board.rows = 15;
         this.#board.cols = 15;
         this.#board.cellSize = 40;
-        this.#board.bgColor = 'teal';
+        this.#board.bgColor = '#D49160';
 
         this.#boardData = new BoardData(this.#board.cols, this.#board.rows);
         this.#board.setCanvas(document.getElementsByTagName("canvas")[0]);
