@@ -93,8 +93,10 @@ class Board {
 
     #boardClick() {
         return (e) => {
-            const x = Math.floor(e.offsetX / this.#cellSize);
-            const y = Math.floor(e.offsetY / this.#cellSize);
+            const widthRatio = this.width / e.target.clientWidth;
+            const heightRatio = this.height / e.target.clientHeight;
+            const x = Math.floor(e.offsetX * widthRatio / this.#cellSize);
+            const y = Math.floor(e.offsetY * heightRatio / this.#cellSize);
             this.#clickCallback(x, y);
         }
     }
@@ -102,8 +104,10 @@ class Board {
     #boardMouseMove() {
         const pos = { x: 0, y: 0 };
         return (e) => {
-            const x = Math.floor(e.offsetX / this.#cellSize);
-            const y = Math.floor(e.offsetY / this.#cellSize);
+            const widthRatio = this.width / e.target.clientWidth;
+            const heightRatio = this.height / e.target.clientHeight;
+            const x = Math.floor(e.offsetX * widthRatio / this.#cellSize);
+            const y = Math.floor(e.offsetY * heightRatio / this.#cellSize);
             if (x != pos.x || y != pos.y) {
                 this.#moveCallback(pos, x, y);
                 pos.x = x;
